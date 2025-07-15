@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  nginx-proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+    depends_on:
+      - phpmyadmin
